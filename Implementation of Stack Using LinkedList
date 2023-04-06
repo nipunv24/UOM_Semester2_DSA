@@ -1,0 +1,105 @@
+#include <iostream>
+#include <chrono>
+
+using namespace std;
+
+// define a node structure for the linked list
+struct Node {
+    int data;
+    Node* next;
+};
+
+// define a class for the stack
+class Stack {
+private:
+    Node* top;
+
+public:
+    Stack() {
+        top = NULL;
+    }
+
+    void push(int value) {
+        Node* newNode = new Node;
+        newNode->data = value;
+        newNode->next = top;
+        top = newNode;
+    }
+
+    int pop() {
+        if (top == NULL) {
+            cout << "Stack is empty" << endl;
+            return -1;
+        }
+        int value = top->data;
+        Node* temp = top;
+        top = top->next;
+        delete temp;
+        return value;
+    }
+
+    int peek() {
+        if (top == NULL) {
+            cout << "Stack is empty" << endl;
+            return -1;
+        }
+        return top->data;
+    }
+
+    bool isEmpty() {
+        return top == NULL;
+    }
+
+    void display() {
+        if (top == NULL) {
+            cout << "Stack is empty" << endl;
+            return;
+        }
+        Node* temp = top;
+        while (temp != NULL) {
+            cout << temp->data << " ";
+            temp = temp->next;
+        }
+        cout << endl;
+    }
+};
+
+auto start = chrono::high_resolution_clock::now(); //starts timing
+
+int main() {
+    Stack s;
+    s.push(8);
+    s.push(10);
+    s.push(5);
+    s.push(11);
+    s.push(15);
+    s.push(23);
+    s.push(6);
+    s.push(18);
+    s.push(20);
+    s.push(17);
+    s.display();
+    s.pop();
+    s.pop();
+    s.pop();
+    s.pop();
+    s.pop();
+    s.display();
+    s.push(4);
+    s.push(30);
+    s.push(3);
+    s.push(1);
+    s.display();
+    
+// stop measuring the execution time
+    auto stop = chrono::high_resolution_clock::now();
+
+    // calculate the elapsed time
+    auto duration = chrono::duration_cast<chrono::microseconds>(stop - start);
+    long long elapsed = duration.count();
+
+    // display the elapsed time
+    cout << "Elapsed time: " << elapsed << " microseconds" << endl;
+    
+   return 0;
+}
