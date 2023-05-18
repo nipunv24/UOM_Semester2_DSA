@@ -33,9 +33,6 @@ struct Graph{
         //lets iterate through each node and print its neighbours
         for(int i=1;i<n+1;i++){
             cout<<i<<"-->";
-//            for(const auto& value:nodes[i].neighbours){
-//                cout<<value<<" ";
-//            }
             for(int j:nodes[i].neighbours){
                 cout<<j<<" ";
             }
