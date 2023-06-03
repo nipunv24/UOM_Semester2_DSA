@@ -1,0 +1,118 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+
+// Structure to represent the features of an edge in the graph.
+struct Edge {
+    int src, dest, weight;
+};
+
+// Structure to represent a subset for union-find
+struct Subset {
+    int parent, rank;
+};
+
+// Graph class
+class Graph {
+private:
+    int numVertices;
+    vector<Edge> edges;
+
+public:
+    Graph(int numVertices) : numVertices(numVertices) {}
+
+    // Add an edge to the graph
+    void addEdge(int src, int dest, int weight) {
+        Edge edge;
+        edge.src = src;
+        edge.dest = dest;
+        edge.weight = weight;
+        edges.push_back(edge);
+    }
+
+    // Find the parent of a subset (uses path compression)
+    int findParent(vector<Subset>& subsets, int i) {
+        if (subsets[i].parent != i)
+            subsets[i].parent = findParent(subsets, subsets[i].parent);
+        return subsets[i].parent;
+    }
+
+    // Union of two subsets (uses union by rank) (Beacuse the different msts created should be considered)
+    void unionSubsets(vector<Subset>& subsets, int x, int y) {
+        int xroot = findParent(subsets, x);
+        int yroot = findParent(subsets, y);
+        if (subsets[xroot].rank < subsets[yroot].rank)
+            subsets[xroot].parent = yroot;
+        else if (subsets[xroot].rank > subsets[yroot].rank)
+            subsets[yroot].parent = xroot;
+        else {
+            subsets[yroot].parent = xroot;
+            subsets[xroot].rank++;
+        }
+    }
+
+    // Compare function for sorting edges by weight
+    static bool compareEdges(const Edge& a, const Edge& b) {
+        return a.weight < b.weight;
+    }
+
+    // Find the minimum spanning tree
+    void findMinimumSpanningTree() {
+        vector<Edge> result;
+        vector<Subset> subsets(numVertices);
+
+        // Sort edges by weight
+        sort(edges.begin(), edges.end(), compareEdges);
+
+        int i = 0;
+        int e = 0;
+
+        // Create subsets with single elements
+        for (int v = 0; v < numVertices; v++) {
+            subsets[v].parent = v;
+            subsets[v].rank = 0;
+        }
+
+        // Build the minimum spanning tree
+        while (e < numVertices - 1 && i < edges.size()) {
+            Edge nextEdge = edges[i++];
+
+            int x = findParent(subsets, nextEdge.src);
+            int y = findParent(subsets, nextEdge.dest);
+
+            if (x != y) {
+                result.push_back(nextEdge);
+                unionSubsets(subsets, x, y);
+                e++;
+            }
+        }
+
+        // Output the minimum spanning tree
+        cout << "Minimum Spanning Tree:" << endl;
+        for (auto edge : result)
+            cout << edge.src << " -- " << edge.dest << " : " << edge.weight << endl;
+    }
+};
+
+int main() {
+    int numVertices, numEdges;
+    cout << "Enter the number of vertices: ";
+    cin >> numVertices;
+    cout << "Enter the number of edges: ";
+    cin >> numEdges;
+
+    Graph graph(numVertices);
+
+    cout << "Enter edges (source, destination, weight):" << endl;
+    for (int i = 0; i < numEdges; i++) {
+        int src, dest, weight;
+        cin >> src >> dest >> weight;
+        graph.addEdge(src, dest, weight);
+    }
+
+    graph.findMinimumSpanningTree();
+
+    return 0;
+}
